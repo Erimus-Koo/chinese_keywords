@@ -111,6 +111,7 @@ def combineWords(wordsDict,timesLimit=1,thresholdMin=0.5,thresholdMax=0.2,debug=
 			wordTimes = wordsDict[len(word)][word]
 
 			if wordTimes<timesLimit:
+				wordsDict[len(word)][word] = 0 #这里作为失败处理。合体失败的情况下，主词次数清零，因子次数保留。反之亦然。
 				continue # 排除只出现X次的词(不然剩余的低于XX词的词 比如1次 百分百会合体成功通过)
 
 			# print('====================\n主词:\t%s\t%s'%(word,wordTimes))
@@ -198,8 +199,9 @@ def printResult(startTime,asciiDict,wordsDict,wordLenMin=2,timesLimit=1,topLimit
 检查结果
 """
 def checkResult(wordsDict,content):
+	# print(formatJSON(wordsDict))
 	chineseLength = 0
-	for length in range(wordLenMin,max(wordsDict)+1)[::-1]: #优先长词组
+	for length in range(1,max(wordsDict)+1)[::-1]: #优先长词组
 		# 用移去的方法似乎无法保证顺序 检测不正确
 		# for word,times in sorted(wordsDict[length].items(),key=lambda x:x[1],reverse=True):
 		# 	if times:
@@ -213,10 +215,11 @@ def checkResult(wordsDict,content):
 	Punctuations = '，。／《》？；：‘’“”【】「」、·～！¥…*（）—" "\t\n\r,./<>?;:\'\"[]{}\\|`~!^*()-_=+｜' #符号
 	Punctuations += '.0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' #英文数字
 	for i in Punctuations:
-		content = content.replace(i,'') #原文中中文字符数量
+		content = content.replace(i,'') #原文去英数标点后的字符数量
 
 	if len(content)!=chineseLength:
 		drawTitle('Result ERROR!')
+		print('content: %s\twordDict: %s'%(len(content),chineseLength))
 
 
 
@@ -244,6 +247,7 @@ def detectKeywords(content,timesLimit=10,wordLenMin=2,wordLenMax=5,thresholdMin=
 if __name__=='__main__':
 	filename = 'test/text1.txt'
 	content = loadFile(filename)
+	
 	debug = 0
 	# debug = 1
 	timesLimit = 5 #最小出现次数

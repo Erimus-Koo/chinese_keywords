@@ -64,7 +64,7 @@ wordsDict{词组长度:{词组:出现次数,...},...}
 """
 def getChineseDict(content,maxLength=4):
 	# 移除标点符号
-	Punctuations = '，。／《》？；：‘’“”【】「」、·～！¥…*（）—" "\t\n\r,./<>?;:\'\"[]{}\\|`~!^*()-_=+｜' #符号
+	Punctuations = '，。／《》？；：‘’“”【】「」『』、·～！¥￥…*（）—" "\t\n\r,./<>?;:\'\"[]{}\\|`~!@#$%^&*()-_=+｜' #符号
 	Punctuations += '.0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' #英文数字
 	for i in Punctuations[1:]:
 		content = content.replace(i,Punctuations[0]) #把后续标点符号都换成第一个
@@ -176,7 +176,7 @@ def combineWords(wordsDict,timesLimit=1,thresholdMin=0.5,thresholdMax=0.2,debug=
 """
 排序并打印结果
 """
-def printResult(startTime,asciiDict,wordsDict,wordLenMin=2,timesLimit=1,topLimit=999,doPrint=True):
+def printResult(asciiDict,wordsDict,wordLenMin=2,timesLimit=1,topLimit=999,doPrint=True):
 	# drawTitle('RESULT')
 	result = [list(x) for x in [i for i in asciiDict.items() if i[1]>=timesLimit]] #取出英数
 
@@ -189,7 +189,6 @@ def printResult(startTime,asciiDict,wordsDict,wordLenMin=2,timesLimit=1,topLimit
 		# drawTitle('Keywords Ranking')
 		for i in result[:topLimit]: #打印前XX位
 			print('%5s %s'%(i[1],i[0]))
-		print('---\nUsed: %s'%(datetime.now()-startTime))
 
 	return result[:topLimit]
 
@@ -212,7 +211,7 @@ def checkResult(wordsDict,content):
 		for times in wordsDict[length].values():
 			chineseLength += length*times
 
-	Punctuations = '，。／《》？；：‘’“”【】「」、·～！¥…*（）—" "\t\n\r,./<>?;:\'\"[]{}\\|`~!^*()-_=+｜' #符号
+	Punctuations = '，。／《》？；：‘’“”【】「」『』、·～！¥￥…*（）—" "\t\n\r,./<>?;:\'\"[]{}\\|`~!@#$%^&*()-_=+｜' #符号
 	Punctuations += '.0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' #英文数字
 	for i in Punctuations:
 		content = content.replace(i,'') #原文去英数标点后的字符数量
@@ -227,7 +226,6 @@ def checkResult(wordsDict,content):
 主入口
 """
 def detectKeywords(content,timesLimit=10,wordLenMin=2,wordLenMax=5,thresholdMin=0.4,thresholdMax=0.2,topLimit=999,doPrint=True,debug=False):
-	startTime = datetime.now()
 	asciiDict = getAsciiDict(content)
 	wordsDict = getChineseDict(content,wordLenMax)
 	
@@ -239,12 +237,14 @@ def detectKeywords(content,timesLimit=10,wordLenMin=2,wordLenMax=5,thresholdMin=
 	
 	wordsDict = combineWords(wordsDict,timesLimit,thresholdMin,thresholdMax,debug) #(只处理>=X次出现的词),(越小越容易选到非词组),(越大越容易选到常用字)
 	checkResult(wordsDict,content)
-	keywordsList = printResult(startTime,asciiDict,wordsDict,wordLenMin,timesLimit,topLimit,doPrint) #最小出现次数
+	keywordsList = printResult(asciiDict,wordsDict,wordLenMin,timesLimit,topLimit,doPrint) #最小出现次数
 	return keywordsList
 
 
 
 if __name__=='__main__':
+	startTime = datetime.now()
+
 	filename = 'test/text1.txt'
 	content = loadFile(filename)
 	
@@ -253,8 +253,10 @@ if __name__=='__main__':
 	timesLimit = 5 #最小出现次数
 	wordLenMin = 2 #最短词长度
 	wordLenMax = 5 #最长词长度
-	thresholdMin = 0.8 #主词占因子比例，越小越容易选到非词组。(e.g.互=17,联=21,互联=16)
+	thresholdMin = 0.6 #主词占因子比例，越小越容易选到非词组。(e.g.互=17,联=21,互联=16)
 	thresholdMax = 0.1 #越大越容易选到常用字。(e.g.域名的=15,域名=20,的=200)
 	topLimit = 5000 #输出结果长度
 	doPrint = True #是否打印结果
 	detectKeywords(content,timesLimit,wordLenMin,wordLenMax,thresholdMin,thresholdMax,topLimit,doPrint,debug)
+	
+	print('---\nUsed: %s'%(datetime.now()-startTime))

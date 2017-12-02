@@ -42,7 +42,7 @@
 ![](http://upload-images.jianshu.io/upload_images/1980018-90f399a08a522653.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)  
 
 到这里，我们可以尝试列出一条公式。  
-```
+```python
 min(A_times,B_times)*50% <= wordTimes  
 ```
 说人话就是，两个因子中，出现次数少的那个因子，如果有50%以上（很大概率）都被父级占用了，那么父级很可能是一个词组，这个因子应该被聚合。  
@@ -61,7 +61,7 @@ min(A_times,B_times)*50% <= wordTimes
 那么我们假设一下这个情况：  
 【的故事】2次，【的】20次，【故事】2次。  
 那么我们隐约又能列出一个公式。  
-```
+```python
 max(A_times,B_times)*10% <= wordTimes  
 ```
 说人话就是，因子里出现次数多的那个，如果父级只占用了它的10%都不到，那这个因子很可能是一个常规字，所以不应该和父级组合为一个词。  
